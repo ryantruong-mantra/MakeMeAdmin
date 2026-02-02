@@ -40,11 +40,15 @@ jobs:
       
     - name: List MSI output
       run: |
-        echo "Setup output:"
-        dir Setup\bin\Release*
-        echo ""
-        echo "Installers folder:"
-        dir Installers\ 2>$null || echo "Installers folder not found"
+        Write-Host "Setup output:"
+        Get-ChildItem Setup\bin\Release* -ErrorAction SilentlyContinue
+        Write-Host ""
+        Write-Host "Installers folder:"
+        if (Test-Path Installers\) {
+          Get-ChildItem Installers\
+        } else {
+          Write-Host "Installers folder not found"
+        }
       shell: pwsh
       continue-on-error: true
       
