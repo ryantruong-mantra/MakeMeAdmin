@@ -42,6 +42,22 @@
     <Cultures>
     </Cultures>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM64' ">
+    <OutputPath>bin\$(Configuration) $(Platform)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration) $(Platform)\</IntermediateOutputPath>
+    <SuppressIces>ICE57</SuppressIces>
+    <Cultures>
+    </Cultures>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM64' ">
+    <DefineConstants>Debug</DefineConstants>
+    <OutputPath>bin\$(Configuration) $(Platform)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration) $(Platform)\</IntermediateOutputPath>
+    <SuppressValidation>False</SuppressValidation>
+    <SuppressIces>ICE57</SuppressIces>
+    <Cultures>
+    </Cultures>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product.wxs" />
   </ItemGroup>
@@ -152,10 +168,18 @@
 	-->
   <Target Name="BeforeBuild">
     <!-- Get the assembly version of the service .exe file. -->
-    <GetAssemblyIdentity AssemblyFiles="..\Service\bin\$(Configuration) $(Platform)\MakeMeAdminService.exe">
+    <!-- ARM64 binaries cannot be loaded on x64 build machines, so skip for ARM64 -->
+    <PropertyGroup Condition="'$(Platform)' != 'ARM64'">
+      <ServiceExePath>..\Service\bin\$(Configuration) $(Platform)\MakeMeAdminService.exe</ServiceExePath>
+    </PropertyGroup>
+    <GetAssemblyIdentity AssemblyFiles="$(ServiceExePath)" Condition="'$(Platform)' != 'ARM64'">
       <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
     </GetAssemblyIdentity>
-    <CreateProperty Value="%(AsmInfo.Version)">
+    <!-- For ARM64, use the version from Product.wxs directly -->
+    <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
+      <FullVersionNumber>2.4.1.0</FullVersionNumber>
+    </PropertyGroup>
+    <CreateProperty Value="%(AsmInfo.Version)" Condition="'$(Platform)' != 'ARM64'">
       <Output TaskParameter="Value" PropertyName="FullVersionNumber" />
     </CreateProperty>
     <!-- Create a shortened version number, using the major, minor and build parts. -->
