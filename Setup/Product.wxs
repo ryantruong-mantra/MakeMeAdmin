@@ -78,7 +78,7 @@
       <?if $(var.Platform) = x64 ?>
         <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
       <?elseif $(var.Platform) = ARM64 ?>
-        <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+        <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
       <?else ?>
         <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
       <?endif ?>
