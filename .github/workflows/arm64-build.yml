@@ -49,19 +49,29 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MakeMeAdminService-ARM64
-        path: Service/bin/Release_ARM64/MakeMeAdminService.exe
+        path: Service/bin/Release_ARM64/**
         if-no-files-found: error
         
     - name: Upload LocalUI ARM64 artifact
       uses: actions/upload-artifact@v4
       with:
         name: MakeMeAdminUI-ARM64
-        path: UserRequestApp/bin/Release_ARM64/MakeMeAdminUI.exe
+        path: UserRequestApp/bin/Release_ARM64/**
         if-no-files-found: error
         
     - name: Upload RemoteUI ARM64 artifact
       uses: actions/upload-artifact@v4
       with:
         name: MakeMeAdminRemoteUI-ARM64
-        path: RemoteUI/bin/Release_ARM64/MakeMeAdminRemoteUI.exe
+        path: RemoteUI/bin/Release_ARM64/**
+        if-no-files-found: error
+        
+    - name: Upload All ARM64 Binaries (Combined)
+      uses: actions/upload-artifact@v4
+      with:
+        name: MakeMeAdmin-ARM64-All
+        path: |
+          Service/bin/Release_ARM64/**
+          UserRequestApp/bin/Release_ARM64/**
+          RemoteUI/bin/Release_ARM64/**
         if-no-files-found: error
