@@ -112,41 +112,41 @@ jobs:
     - name: Restore NuGet packages
       run: nuget restore MakeMeAdmin.sln
       
-    - name: Verify WiX Installation
-      run: |
-        Write-Host "Checking WiX installation..."
-        Write-Host "PATH: $env:PATH"
-        Write-Host ""
+    # - name: Verify WiX Installation
+    #   run: |
+    #     Write-Host "Checking WiX installation..."
+    #     Write-Host "PATH: $env:PATH"
+    #     Write-Host ""
         
-        $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
-        if (Test-Path $wixPath) {
-          Write-Host "✓ WiX directory exists: $wixPath"
-          Get-ChildItem $wixPath
-        } else {
-          Write-Error "WiX directory not found at $wixPath"
-          exit 1
-        }
+    #     $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+    #     if (Test-Path $wixPath) {
+    #       Write-Host "✓ WiX directory exists: $wixPath"
+    #       Get-ChildItem $wixPath
+    #     } else {
+    #       Write-Error "WiX directory not found at $wixPath"
+    #       exit 1
+    #     }
         
-        Write-Host ""
-        Write-Host "Searching for candle.exe..."
-        $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
-        if ($candle) {
-          Write-Host "✓ Found: $($candle.Source)"
-        } else {
-          Write-Error "candle.exe not found in PATH"
-          exit 1
-        }
+    #     Write-Host ""
+    #     Write-Host "Searching for candle.exe..."
+    #     $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
+    #     if ($candle) {
+    #       Write-Host "✓ Found: $($candle.Source)"
+    #     } else {
+    #       Write-Error "candle.exe not found in PATH"
+    #       exit 1
+    #     }
         
-        Write-Host ""
-        Write-Host "Searching for light.exe..."
-        $light = Get-Command light.exe -ErrorAction SilentlyContinue
-        if ($light) {
-          Write-Host "✓ Found: $($light.Source)"
-        } else {
-          Write-Error "light.exe not found in PATH"
-          exit 1
-        }
-      shell: pwsh
+    #     Write-Host ""
+    #     Write-Host "Searching for light.exe..."
+    #     $light = Get-Command light.exe -ErrorAction SilentlyContinue
+    #     if ($light) {
+    #       Write-Host "✓ Found: $($light.Source)"
+    #     } else {
+    #       Write-Error "light.exe not found in PATH"
+    #       exit 1
+    #     }
+    #   shell: pwsh
       
     - name: Build Solution (ARM64)
       run: msbuild MakeMeAdmin.sln /p:Configuration=Release /p:Platform=ARM64 /m /v:minimal
