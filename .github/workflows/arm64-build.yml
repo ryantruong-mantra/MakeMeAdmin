@@ -1,0 +1,67 @@
+name: ARM64 Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-arm64:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v2
+      
+    - name: Restore NuGet packages
+      run: nuget restore MakeMeAdmin.sln
+      
+    - name: Build Service (ARM64)
+      run: msbuild Service/Service.csproj /p:Configuration=Release /p:Platform=ARM64 /p:OutputPath=bin\Release_ARM64\ /m
+      
+    - name: Build LocalUI (ARM64)
+      run: msbuild UserRequestApp/LocalUI.csproj /p:Configuration=Release /p:Platform=ARM64 /p:OutputPath=bin\Release_ARM64\ /m
+      
+    - name: Build RemoteUI (ARM64)
+      run: msbuild RemoteUI/RemoteUI.csproj /p:Configuration=Release /p:Platform=ARM64 /p:OutputPath=bin\Release_ARM64\ /m
+      
+    - name: List build artifacts
+      run: |
+        echo "Service artifacts:"
+        dir Service\bin\Release_ARM64\
+        echo ""
+        echo "LocalUI artifacts:"
+        dir UserRequestApp\bin\Release_ARM64\
+        echo ""
+        echo "RemoteUI artifacts:"
+        dir RemoteUI\bin\Release_ARM64\
+      shell: cmd
+      
+    - name: Upload Service ARM64 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MakeMeAdminService-ARM64
+        path: Service/bin/Release_ARM64/MakeMeAdminService.exe
+        if-no-files-found: error
+        
+    - name: Upload LocalUI ARM64 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MakeMeAdminUI-ARM64
+        path: UserRequestApp/bin/Release_ARM64/MakeMeAdminUI.exe
+        if-no-files-found: error
+        
+    - name: Upload RemoteUI ARM64 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MakeMeAdminRemoteUI-ARM64
+        path: RemoteUI/bin/Release_ARM64/MakeMeAdminRemoteUI.exe
+        if-no-files-found: error
