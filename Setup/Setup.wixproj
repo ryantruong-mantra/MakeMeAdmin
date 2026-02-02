@@ -168,7 +168,10 @@
 	-->
   <Target Name="BeforeBuild">
     <!-- Get the assembly version of the service .exe file. -->
-    <GetAssemblyIdentity AssemblyFiles="..\Service\bin\$(Configuration) $(Platform)\MakeMeAdminService.exe">
+    <PropertyGroup>
+      <ServiceExePath>..\Service\bin\$(Configuration) $(Platform)\MakeMeAdminService.exe</ServiceExePath>
+    </PropertyGroup>
+    <GetAssemblyIdentity AssemblyFiles="$(ServiceExePath)">
       <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
     </GetAssemblyIdentity>
     <CreateProperty Value="%(AsmInfo.Version)">
