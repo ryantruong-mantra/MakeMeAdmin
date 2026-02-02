@@ -169,5 +169,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MakeMeAdmin-ARM64-Installer
-        path: Installers/*.msi
+        path: Installers/*/*.msi
         if-no-files-found: error
