@@ -26,54 +26,85 @@ jobs:
       
     - name: Install WiX Toolset
       run: |
-        Write-Host "Downloading WiX Toolset v3.11..."
-        $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311.exe"
-        $wixInstaller = "$env:TEMP\wix311.exe"
+        Write-Host "Checking if WiX is already installed..."
         
-        Invoke-WebRequest -Uri $wixUrl -OutFile $wixInstaller -UseBasicParsing
+        # Check common WiX installation paths
+        $possiblePaths = @(
+          "C:\Program Files (x86)\WiX Toolset v3.11\bin",
+          "C:\Program Files (x86)\WiX Toolset v3.14\bin",
+          "C:\Program Files (x86)\Windows Installer XML v3.5\bin"
+        )
         
-        if (Test-Path $wixInstaller) {
-          Write-Host "Installing WiX Toolset..."
-          $process = Start-Process -FilePath $wixInstaller -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
+        $wixFound = $false
+        $wixPath = ""
+        
+        foreach ($path in $possiblePaths) {
+          if (Test-Path $path) {
+            Write-Host "Found WiX at: $path"
+            $wixPath = $path
+            $wixFound = $true
+            break
+          }
+        }
+        
+        if (-not $wixFound) {
+          Write-Host "WiX not pre-installed. Downloading and installing WiX Toolset v3.11..."
+          $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311.exe"
+          $wixInstaller = "$env:TEMP\wix311.exe"
           
-          Write-Host "WiX installer exit code: $($process.ExitCode)"
+          try {
+            Invoke-WebRequest -Uri $wixUrl -OutFile $wixInstaller -UseBasicParsing
+            
+            if (Test-Path $wixInstaller) {
+              Write-Host "Installing WiX Toolset..."
+              $process = Start-Process -FilePath $wixInstaller -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
+              
+              Write-Host "WiX installer exit code: $($process.ExitCode)"
+              
+              if ($process.ExitCode -ne 0) {
+                Write-Error "WiX installation failed with exit code: $($process.ExitCode)"
+                exit 1
+              }
+              
+              Write-Host "Waiting for installation to complete..."
+              Start-Sleep -Seconds 15
+              
+              $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+            } else {
+              Write-Error "Failed to download WiX installer"
+              exit 1
+            }
+          } catch {
+            Write-Error "Error during WiX installation: $_"
+            exit 1
+          }
+        }
+        
+        # Verify the path exists
+        if (Test-Path $wixPath) {
+          Write-Host "✓ WiX installed at: $wixPath"
           
-          if ($process.ExitCode -ne 0) {
-            Write-Error "WiX installation failed with exit code: $($process.ExitCode)"
+          # Add to PATH for current step and future steps
+          $env:PATH = "$wixPath;$env:PATH"
+          Add-Content -Path $env:GITHUB_PATH -Value $wixPath
+          
+          # Verify executables
+          if (Test-Path "$wixPath\candle.exe") {
+            Write-Host "✓ candle.exe found"
+          } else {
+            Write-Error "candle.exe not found at $wixPath"
             exit 1
           }
           
-          Write-Host "Waiting for installation to complete..."
-          Start-Sleep -Seconds 10
-          
-          $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
-          if (Test-Path $wixPath) {
-            Write-Host "WiX installed successfully at: $wixPath"
-            # Add to PATH for current step and future steps
-            $env:PATH = "$wixPath;$env:PATH"
-            Add-Content -Path $env:GITHUB_PATH -Value $wixPath
-            
-            # Verify installation
-            if (Test-Path "$wixPath\candle.exe") {
-              Write-Host "✓ WiX candle.exe found"
-            } else {
-              Write-Error "candle.exe not found at $wixPath"
-              exit 1
-            }
-            if (Test-Path "$wixPath\light.exe") {
-              Write-Host "✓ WiX light.exe found"
-            } else {
-              Write-Error "light.exe not found at $wixPath"
-              exit 1
-            }
+          if (Test-Path "$wixPath\light.exe") {
+            Write-Host "✓ light.exe found"
           } else {
-            Write-Error "WiX installation path not found at expected location: $wixPath"
-            Write-Host "Checking common installation locations..."
-            Get-ChildItem "C:\Program Files (x86)\" -Directory | Where-Object { $_.Name -like "*WiX*" }
+            Write-Error "light.exe not found at $wixPath"
             exit 1
           }
         } else {
-          Write-Error "Failed to download WiX installer"
+          Write-Error "WiX installation path not found: $wixPath"
+          Get-ChildItem "C:\Program Files (x86)\" -Directory | Where-Object { $_.Name -like "*WiX*" }
           exit 1
         }
       shell: pwsh
