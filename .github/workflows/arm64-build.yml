@@ -24,57 +24,33 @@ jobs:
     - name: Setup NuGet
       uses: nuget/setup-nuget@v2
       
+    - name: Install WiX Toolset
+      run: |
+        curl -L -o wix311.exe https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311.exe
+        .\wix311.exe /install /quiet /norestart
+        # Add WiX to PATH
+        echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: powershell
+      
     - name: Restore NuGet packages
       run: nuget restore MakeMeAdmin.sln
       
-    - name: Build Service (ARM64)
-      run: msbuild Service/Service.csproj /p:Configuration=Release /p:Platform=ARM64 /p:OutputPath=bin\Release_ARM64\ /m
+    - name: Build Solution (ARM64)
+      run: msbuild MakeMeAdmin.sln /p:Configuration=Release /p:Platform=ARM64 /m /v:minimal
       
-    - name: Build LocalUI (ARM64)
-      run: msbuild UserRequestApp/LocalUI.csproj /p:Configuration=Release /p:Platform=ARM64 /p:OutputPath=bin\Release_ARM64\ /m
-      
-    - name: Build RemoteUI (ARM64)
-      run: msbuild RemoteUI/RemoteUI.csproj /p:Configuration=Release /p:Platform=ARM64 /p:OutputPath=bin\Release_ARM64\ /m
-      
-    - name: List build artifacts
+    - name: List MSI output
       run: |
-        echo "Service artifacts:"
-        dir Service\bin\Release_ARM64\
+        echo "Setup output:"
+        dir Setup\bin\Release*
         echo ""
-        echo "LocalUI artifacts:"
-        dir UserRequestApp\bin\Release_ARM64\
-        echo ""
-        echo "RemoteUI artifacts:"
-        dir RemoteUI\bin\Release_ARM64\
-      shell: cmd
+        echo "Installers folder:"
+        dir Installers\ 2>$null || echo "Installers folder not found"
+      shell: pwsh
+      continue-on-error: true
       
-    - name: Upload Service ARM64 artifact
+    - name: Upload ARM64 MSI Installer
       uses: actions/upload-artifact@v4
       with:
-        name: MakeMeAdminService-ARM64
-        path: Service/bin/Release_ARM64/**
-        if-no-files-found: error
-        
-    - name: Upload LocalUI ARM64 artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: MakeMeAdminUI-ARM64
-        path: UserRequestApp/bin/Release_ARM64/**
-        if-no-files-found: error
-        
-    - name: Upload RemoteUI ARM64 artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: MakeMeAdminRemoteUI-ARM64
-        path: RemoteUI/bin/Release_ARM64/**
-        if-no-files-found: error
-        
-    - name: Upload All ARM64 Binaries (Combined)
-      uses: actions/upload-artifact@v4
-      with:
-        name: MakeMeAdmin-ARM64-All
-        path: |
-          Service/bin/Release_ARM64/**
-          UserRequestApp/bin/Release_ARM64/**
-          RemoteUI/bin/Release_ARM64/**
+        name: MakeMeAdmin-ARM64-Installer
+        path: Installers/*.msi
         if-no-files-found: error

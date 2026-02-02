@@ -42,6 +42,22 @@
     <Cultures>
     </Cultures>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM64' ">
+    <OutputPath>bin\$(Configuration) $(Platform)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration) $(Platform)\</IntermediateOutputPath>
+    <SuppressIces>ICE57</SuppressIces>
+    <Cultures>
+    </Cultures>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM64' ">
+    <DefineConstants>Debug</DefineConstants>
+    <OutputPath>bin\$(Configuration) $(Platform)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration) $(Platform)\</IntermediateOutputPath>
+    <SuppressValidation>False</SuppressValidation>
+    <SuppressIces>ICE57</SuppressIces>
+    <Cultures>
+    </Cultures>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product.wxs" />
   </ItemGroup>

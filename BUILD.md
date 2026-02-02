@@ -35,18 +35,23 @@ For ARM64 Release build:
 # Restore NuGet packages
 nuget restore MakeMeAdmin.sln
 
-# Build the entire solution for ARM64
+# Build the entire solution for ARM64 (includes MSI installer)
 msbuild MakeMeAdmin.sln /p:Configuration=Release /p:Platform=ARM64
 
 # Or build individual projects
 msbuild Service/Service.csproj /p:Configuration=Release /p:Platform=ARM64
 msbuild UserRequestApp/LocalUI.csproj /p:Configuration=Release /p:Platform=ARM64
 msbuild RemoteUI/RemoteUI.csproj /p:Configuration=Release /p:Platform=ARM64
+
+# Build just the MSI installer (after building the projects above)
+msbuild Setup/Setup.wixproj /p:Configuration=Release /p:Platform=ARM64
 ```
+
+**Note**: Building the MSI installer requires the WiX Toolset v3.11 to be installed.
 
 ## GitHub Actions Automated Builds
 
-This repository includes a GitHub Actions workflow (`.github/workflows/arm64-build.yml`) that automatically builds ARM64 binaries.
+This repository includes a GitHub Actions workflow (`.github/workflows/arm64-build.yml`) that automatically builds the ARM64 MSI installer.
 
 ### Triggering the Build
 
@@ -60,11 +65,13 @@ The ARM64 build workflow is triggered:
 1. Go to the **Actions** tab in the GitHub repository
 2. Click on the latest successful workflow run
 3. Scroll down to the **Artifacts** section
-4. Download one of the following:
-   - `MakeMeAdminService-ARM64` - Just the service executable and dependencies
-   - `MakeMeAdminUI-ARM64` - Just the UI executable and dependencies
-   - `MakeMeAdminRemoteUI-ARM64` - Just the remote UI executable and dependencies
-   - `MakeMeAdmin-ARM64-All` - All ARM64 binaries in one package
+4. Download `MakeMeAdmin-ARM64-Installer` - Contains the MSI installer file
+
+The MSI installer includes all components:
+- MakeMeAdmin Service
+- Local UI
+- Remote UI
+- All dependencies and localization files
 
 ## Output Locations
 
@@ -72,6 +79,8 @@ Build artifacts are placed in:
 - `Service/bin/Release ARM64/` - Service binaries
 - `UserRequestApp/bin/Release ARM64/` - Local UI binaries
 - `RemoteUI/bin/Release ARM64/` - Remote UI binaries
+- `Setup/bin/Release ARM64/` - MSI installer (named `MakeMeAdmin-2.4.1-ARM64.msi`)
+- `Installers/` - Copy of MSI installer (created by post-build event)
 
 ## Dependencies
 

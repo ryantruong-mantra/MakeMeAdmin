@@ -23,6 +23,8 @@
 
       <?if $(var.Platform) = x64 ?>
         <ComponentRef Id="MicrosoftTraceEventNuGet_amd64" />
+      <?elseif $(var.Platform) = ARM64 ?>
+        <ComponentRef Id="MicrosoftTraceEventNuGet_arm64" />
       <?else ?>
         <ComponentRef Id="MicrosoftTraceEventNuGet_x86" />
       <?endif ?>
@@ -75,6 +77,8 @@
       <!-- Create the structure in the appropriate Program Files folder. -->
       <?if $(var.Platform) = x64 ?>
         <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+      <?elseif $(var.Platform) = ARM64 ?>
+        <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
       <?else ?>
         <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
       <?endif ?>
@@ -222,6 +226,16 @@
                 <File Id="amd64_msvcp140.dll" Source="$(var.Logging.TargetDir)\amd64\msvcp140.dll" KeyPath="no" />
                 <File Id="amd64_vcruntime140.dll" Source="$(var.Logging.TargetDir)\amd64\vcruntime140.dll" KeyPath="no" />
                 <File Id="amd64_vcruntime140_1.dll" Source="$(var.Logging.TargetDir)\amd64\vcruntime140_1.dll" KeyPath="no" />
+              </Component>
+            </Directory>
+          <?elseif $(var.Platform) = ARM64 ?>
+            <Directory Id="MicrosoftTraceEventNuGet_arm64" Name="arm64">
+              <Component Id="MicrosoftTraceEventNuGet_arm64" Guid="A1B2C3D4-E5F6-4789-A012-B3C4D5E6F7A8">
+                <File Id="arm64_KernelTraceControl.dll" Source="$(var.Logging.TargetDir)\arm64\KernelTraceControl.dll" KeyPath="no" />
+                <File Id="arm64_msdia140.dll" Source="$(var.Logging.TargetDir)\arm64\msdia140.dll" KeyPath="no" />
+                <File Id="arm64_msvcp140.dll" Source="$(var.Logging.TargetDir)\arm64\msvcp140.dll" KeyPath="no" />
+                <File Id="arm64_vcruntime140.dll" Source="$(var.Logging.TargetDir)\arm64\vcruntime140.dll" KeyPath="no" />
+                <File Id="arm64_vcruntime140_1.dll" Source="$(var.Logging.TargetDir)\arm64\vcruntime140_1.dll" KeyPath="no" />
               </Component>
             </Directory>
           <?else ?>
