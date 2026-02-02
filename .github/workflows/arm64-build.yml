@@ -34,7 +34,14 @@ jobs:
         
         if (Test-Path $wixInstaller) {
           Write-Host "Installing WiX Toolset..."
-          Start-Process -FilePath $wixInstaller -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
+          $process = Start-Process -FilePath $wixInstaller -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
+          
+          Write-Host "WiX installer exit code: $($process.ExitCode)"
+          
+          if ($process.ExitCode -ne 0) {
+            Write-Error "WiX installation failed with exit code: $($process.ExitCode)"
+            exit 1
+          }
           
           Write-Host "Waiting for installation to complete..."
           Start-Sleep -Seconds 10
@@ -48,15 +55,22 @@ jobs:
             
             # Verify installation
             if (Test-Path "$wixPath\candle.exe") {
-              Write-Host "WiX candle.exe found"
+              Write-Host "✓ WiX candle.exe found"
+            } else {
+              Write-Error "candle.exe not found at $wixPath"
+              exit 1
             }
             if (Test-Path "$wixPath\light.exe") {
-              Write-Host "WiX light.exe found"
+              Write-Host "✓ WiX light.exe found"
+            } else {
+              Write-Error "light.exe not found at $wixPath"
+              exit 1
             }
           } else {
-            Write-Host "WARNING: WiX installation path not found at expected location"
+            Write-Error "WiX installation path not found at expected location: $wixPath"
             Write-Host "Checking common installation locations..."
             Get-ChildItem "C:\Program Files (x86)\" -Directory | Where-Object { $_.Name -like "*WiX*" }
+            exit 1
           }
         } else {
           Write-Error "Failed to download WiX installer"
@@ -75,31 +89,33 @@ jobs:
         
         $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
         if (Test-Path $wixPath) {
-          Write-Host "WiX directory exists: $wixPath"
+          Write-Host "✓ WiX directory exists: $wixPath"
           Get-ChildItem $wixPath
         } else {
-          Write-Host "ERROR: WiX directory not found at $wixPath"
+          Write-Error "WiX directory not found at $wixPath"
+          exit 1
         }
         
         Write-Host ""
         Write-Host "Searching for candle.exe..."
         $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
         if ($candle) {
-          Write-Host "Found: $($candle.Source)"
+          Write-Host "✓ Found: $($candle.Source)"
         } else {
-          Write-Host "ERROR: candle.exe not found in PATH"
+          Write-Error "candle.exe not found in PATH"
+          exit 1
         }
         
         Write-Host ""
         Write-Host "Searching for light.exe..."
         $light = Get-Command light.exe -ErrorAction SilentlyContinue
         if ($light) {
-          Write-Host "Found: $($light.Source)"
+          Write-Host "✓ Found: $($light.Source)"
         } else {
-          Write-Host "ERROR: light.exe not found in PATH"
+          Write-Error "light.exe not found in PATH"
+          exit 1
         }
       shell: pwsh
-      continue-on-error: true
       
     - name: Build Solution (ARM64)
       run: msbuild MakeMeAdmin.sln /p:Configuration=Release /p:Platform=ARM64 /m /v:minimal
