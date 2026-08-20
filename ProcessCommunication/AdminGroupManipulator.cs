@@ -65,8 +65,31 @@ namespace SinclairCC.MakeMeAdmin
             if (userIdentity != null)
             {
                 int timeoutMinutes = GetTimeoutForUser(userIdentity);
+
+                // Record the request itself, before any authorization decision is made, so that
+                // every request for administrator rights is present in the log whether or not it
+                // is ultimately granted.
+                ApplicationLog.WriteEvent(
+                    string.Format(
+                        Properties.Resources.AdminRightsRequested,
+                        userIdentity.User,
+                        string.IsNullOrEmpty(userIdentity.Name) ? Properties.Resources.UnknownAccount : userIdentity.Name,
+                        string.IsNullOrEmpty(remoteAddress) ? Properties.Resources.RequestSourceLocal : remoteAddress,
+                        timeoutMinutes),
+                    EventID.AdminRightsRequested,
+                    System.Diagnostics.EventLogEntryType.Information);
+
                 DateTime expirationTime = DateTime.Now.AddMinutes(timeoutMinutes);
                 LocalAdministratorGroup.AddUser(userIdentity, expirationTime, remoteAddress);
+            }
+            else
+            {
+                // A request arrived, but the caller's identity is not available, so the request
+                // cannot be attributed or evaluated.
+                ApplicationLog.WriteEvent(
+                    Properties.Resources.AdminRightsRequestDeniedNoIdentity,
+                    EventID.AdminRightsRequestDenied,
+                    System.Diagnostics.EventLogEntryType.FailureAudit);
             }
         }
 

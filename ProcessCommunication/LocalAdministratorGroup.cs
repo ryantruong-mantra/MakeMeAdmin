@@ -187,30 +187,48 @@ namespace SinclairCC.MakeMeAdmin
                 userIsAuthorized &= adminGroupManipulator.UserIsAuthorized(userIdentity, Settings.RemoteAllowedEntities, Settings.RemoteDeniedEntities);
             }
 
-            if (
-                (!string.IsNullOrEmpty(LocalAdminGroupName)) &&
-                (userIdentity.User != null) && 
-                (userIdentity.Groups != null) && 
-                (userIsAuthorized)
-               )
-            {
+            if (string.IsNullOrEmpty(LocalAdminGroupName))
+            { // The group the user would be added to is not known, so the request cannot be honored.
+                ApplicationLog.WriteEvent(Properties.Resources.AdminRightsRequestDeniedNoGroupName, EventID.AdminRightsRequestDenied, System.Diagnostics.EventLogEntryType.Warning);
+                return;
+            }
+
+            if ((userIdentity == null) || (userIdentity.User == null) || (userIdentity.Groups == null))
+            { // The requesting user cannot be identified, so the request cannot be honored.
+                ApplicationLog.WriteEvent(Properties.Resources.AdminRightsRequestDeniedNoIdentity, EventID.AdminRightsRequestDenied, System.Diagnostics.EventLogEntryType.FailureAudit);
+                return;
+            }
+
+            if (!userIsAuthorized)
+            { // The user is not permitted to obtain administrator rights.
+                string accountName = GetAccountNameFromSID(userIdentity.User);
+                ApplicationLog.WriteEvent(
+                    string.Format(
+                        Properties.Resources.AdminRightsRequestDenied,
+                        userIdentity.User,
+                        string.IsNullOrEmpty(accountName) ? Properties.Resources.UnknownAccount : accountName,
+                        string.IsNullOrEmpty(remoteAddress) ? Properties.Resources.RequestSourceLocal : remoteAddress),
+                    EventID.AdminRightsRequestDenied,
+                    System.Diagnostics.EventLogEntryType.FailureAudit);
+                return;
+            }
+
 #if DEBUG
-                if (expirationTime.HasValue)
-                {
-                    ApplicationLog.WriteEvent(string.Format("Adding user with expiration time of {0}.", expirationTime), EventID.DebugMessage, System.Diagnostics.EventLogEntryType.Information);
-                }
-                else
-                {
-                    ApplicationLog.WriteEvent("Adding user with null expiration time.", EventID.DebugMessage, System.Diagnostics.EventLogEntryType.Information);
-                }
+            if (expirationTime.HasValue)
+            {
+                ApplicationLog.WriteEvent(string.Format("Adding user with expiration time of {0}.", expirationTime), EventID.DebugMessage, System.Diagnostics.EventLogEntryType.Information);
+            }
+            else
+            {
+                ApplicationLog.WriteEvent("Adding user with null expiration time.", EventID.DebugMessage, System.Diagnostics.EventLogEntryType.Information);
+            }
 #endif
 
-                // Save the user's information to the list of users.
-                EncryptedSettings encryptedSettings = new EncryptedSettings(EncryptedSettings.SettingsFilePath);
-                encryptedSettings.AddUser(userIdentity, expirationTime, remoteAddress);
+            // Save the user's information to the list of users.
+            EncryptedSettings encryptedSettings = new EncryptedSettings(EncryptedSettings.SettingsFilePath);
+            encryptedSettings.AddUser(userIdentity, expirationTime, remoteAddress);
 
-                AddUserToAdministrators(userIdentity.User);
-            }
+            AddUserToAdministrators(userIdentity.User);
         }
 
         /// <summary>

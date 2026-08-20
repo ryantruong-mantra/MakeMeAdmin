@@ -51,11 +51,18 @@ msbuild Setup/Setup.wixproj /p:Configuration=Release /p:Platform=ARM64
 
 ## GitHub Actions Automated Builds
 
-This repository includes a GitHub Actions workflow (`.github/workflows/arm64-build.yml`) that automatically builds the ARM64 MSI installer.
+This repository includes two GitHub Actions workflows that build MSI installers:
+
+| Workflow | Platform | MSBuild platform | Artifact name |
+| --- | --- | --- | --- |
+| `.github/workflows/arm64-build.yml` | ARM64 | `ARM64` | `MakeMeAdmin-ARM64-Installer` |
+| `.github/workflows/amd64-build.yml` | AMD64 (x64) | `x64` | `MakeMeAdmin-AMD64-Installer` |
+
+The two workflows are independent, so a failure on one platform does not block the other.
 
 ### Triggering the Build
 
-The ARM64 build workflow is triggered:
+Both build workflows are triggered:
 - On push to `main` or `master` branches
 - On pull requests to `main` or `master` branches
 - Manually via workflow_dispatch
@@ -65,7 +72,7 @@ The ARM64 build workflow is triggered:
 1. Go to the **Actions** tab in the GitHub repository
 2. Click on the latest successful workflow run
 3. Scroll down to the **Artifacts** section
-4. Download `MakeMeAdmin-ARM64-Installer` - Contains the MSI installer file
+4. Download `MakeMeAdmin-ARM64-Installer` or `MakeMeAdmin-AMD64-Installer` - Contains the MSI installer file
 
 The MSI installer includes all components:
 - MakeMeAdmin Service
@@ -75,11 +82,11 @@ The MSI installer includes all components:
 
 ## Output Locations
 
-Build artifacts are placed in:
+Build artifacts are placed in (substitute `x64` or `x86` for `ARM64` for the other platforms):
 - `Service/bin/Release ARM64/` - Service binaries
 - `UserRequestApp/bin/Release ARM64/` - Local UI binaries
 - `RemoteUI/bin/Release ARM64/` - Remote UI binaries
-- `Setup/bin/Release ARM64/` - MSI installer (named `MakeMeAdmin-2.4.1-ARM64.msi`)
+- `Setup/bin/Release ARM64/` - MSI installer (named `Make Me Admin 2.4.1 ARM64.msi`)
 - `Installers/` - Copy of MSI installer (created by post-build event)
 
 ## Dependencies

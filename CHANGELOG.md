@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 https://github.com/pseymour/MakeMeAdmin/commits/master
 
 
+## [Unreleased]
+
+### Added
+
+- Added an AMD64 (x64) GitHub Actions build workflow, alongside the existing ARM64 workflow.
+- Added logging of every request for administrator rights, written by the service when the request is received (event ID 11), before the request is authorized.
+- Added logging of requests for administrator rights that are not honored (event ID 12), including requests denied by the allowed/denied entity lists, which were previously dropped without a log entry.
+
+
 ## [2.4.1] - 2025-11-13
 
 ### Added
