@@ -166,7 +166,7 @@
 	<Target Name="AfterBuild">
 	</Target>
 	-->
-  <Target Name="BeforeBuild">
+  <Target Name="BeforeBuild" DependsOnTargets="ResolveProjectReferences">
     <!-- Get the assembly version of the service .exe file. -->
     <!-- ARM64 binaries cannot be loaded on x64 build machines, so skip for ARM64 -->
     <PropertyGroup Condition="'$(Platform)' != 'ARM64'">
