@@ -77,6 +77,23 @@ namespace SinclairCC.MakeMeAdmin
         RemoteAccessFailure,
 
         /// <summary>
+        /// A user has requested administrator rights. This event is written when the
+        /// request reaches the service, before the request is authorized or honored.
+        /// </summary>
+        /// <remarks>
+        /// The value is stated explicitly so that inserting members above this point
+        /// does not renumber the IDs that are already used by log consumers.
+        /// </remarks>
+        AdminRightsRequested = 11,
+
+        /// <summary>
+        /// A request for administrator rights was received but not honored, either
+        /// because the user is not authorized or because the request could not be
+        /// evaluated.
+        /// </summary>
+        AdminRightsRequestDenied = 12,
+
+        /// <summary>
         /// An elevated process was detected.
         /// </summary>
         ElevatedProcess = 101,

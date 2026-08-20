@@ -79,6 +79,42 @@ namespace SinclairCC.MakeMeAdmin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Administrator rights request denied for user {0} ({1}). Source: {2}. The user is not authorized to obtain administrator rights..
+        /// </summary>
+        internal static string AdminRightsRequestDenied {
+            get {
+                return ResourceManager.GetString("AdminRightsRequestDenied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Administrator rights request denied. The name of the local Administrators group could not be determined..
+        /// </summary>
+        internal static string AdminRightsRequestDeniedNoGroupName {
+            get {
+                return ResourceManager.GetString("AdminRightsRequestDeniedNoGroupName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Administrator rights request denied. The identity of the requesting user could not be determined..
+        /// </summary>
+        internal static string AdminRightsRequestDeniedNoIdentity {
+            get {
+                return ResourceManager.GetString("AdminRightsRequestDeniedNoIdentity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Administrator rights requested by user {0} ({1}). Source: {2}. Rights are set to expire after {3} minute(s)..
+        /// </summary>
+        internal static string AdminRightsRequested {
+            get {
+                return ResourceManager.GetString("AdminRightsRequested", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Exception.
         /// </summary>
         internal static string Exception {
@@ -177,6 +213,15 @@ namespace SinclairCC.MakeMeAdmin.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to local computer.
+        /// </summary>
+        internal static string RequestSourceLocal {
+            get {
+                return ResourceManager.GetString("RequestSourceLocal", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Unknown Account.
         /// </summary>

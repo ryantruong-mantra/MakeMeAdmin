@@ -123,6 +123,18 @@
   <data name="AddingUserReturnedError" xml:space="preserve">
     <value>Adding user {0} ({1}) to the Administrators group returned error code {2}.</value>
   </data>
+  <data name="AdminRightsRequestDenied" xml:space="preserve">
+    <value>Administrator rights request denied for user {0} ({1}). Source: {2}. The user is not authorized to obtain administrator rights.</value>
+  </data>
+  <data name="AdminRightsRequestDeniedNoGroupName" xml:space="preserve">
+    <value>Administrator rights request denied. The name of the local Administrators group could not be determined.</value>
+  </data>
+  <data name="AdminRightsRequestDeniedNoIdentity" xml:space="preserve">
+    <value>Administrator rights request denied. The identity of the requesting user could not be determined.</value>
+  </data>
+  <data name="AdminRightsRequested" xml:space="preserve">
+    <value>Administrator rights requested by user {0} ({1}). Source: {2}. Rights are set to expire after {3} minute(s).</value>
+  </data>
   <data name="Exception" xml:space="preserve">
     <value>Exception</value>
   </data>
@@ -155,6 +167,9 @@
   </data>
   <data name="RequestSentFromHost" xml:space="preserve">
     <value>Request was sent from host {0}.</value>
+  </data>
+  <data name="RequestSourceLocal" xml:space="preserve">
+    <value>local computer</value>
   </data>
   <data name="UnknownAccount" xml:space="preserve">
     <value>Unknown Account</value>

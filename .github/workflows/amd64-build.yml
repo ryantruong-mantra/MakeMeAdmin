@@ -1,4 +1,4 @@
-name: ARM64 Build
+name: AMD64 Build
 
 on:
   # push:
@@ -8,36 +8,36 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-arm64:
+  build-amd64:
     runs-on: windows-latest
-    
+
     permissions:
       contents: read
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
-      
+
     - name: Setup NuGet
       uses: nuget/setup-nuget@v2
-      
+
     - name: Install WiX Toolset
       run: |
         Write-Host "Checking if WiX is already installed..."
-        
+
         # Check common WiX installation paths
         $possiblePaths = @(
           "C:\Program Files (x86)\WiX Toolset v3.11\bin",
           "C:\Program Files (x86)\WiX Toolset v3.14\bin",
           "C:\Program Files (x86)\Windows Installer XML v3.5\bin"
         )
-        
+
         $wixFound = $false
         $wixPath = ""
-        
+
         foreach ($path in $possiblePaths) {
           if (Test-Path $path) {
             Write-Host "Found WiX at: $path"
@@ -46,29 +46,29 @@ jobs:
             break
           }
         }
-        
+
         if (-not $wixFound) {
           Write-Host "WiX not pre-installed. Downloading and installing WiX Toolset v3.11..."
           $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311.exe"
           $wixInstaller = "$env:TEMP\wix311.exe"
-          
+
           try {
             Invoke-WebRequest -Uri $wixUrl -OutFile $wixInstaller -UseBasicParsing
-            
+
             if (Test-Path $wixInstaller) {
               Write-Host "Installing WiX Toolset..."
               $process = Start-Process -FilePath $wixInstaller -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
-              
+
               Write-Host "WiX installer exit code: $($process.ExitCode)"
-              
+
               if ($process.ExitCode -ne 0) {
                 Write-Error "WiX installation failed with exit code: $($process.ExitCode)"
                 exit 1
               }
-              
+
               Write-Host "Waiting for installation to complete..."
               Start-Sleep -Seconds 15
-              
+
               $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
             } else {
               Write-Error "Failed to download WiX installer"
@@ -79,15 +79,15 @@ jobs:
             exit 1
           }
         }
-        
+
         # Verify the path exists
         if (Test-Path $wixPath) {
           Write-Host "✓ WiX installed at: $wixPath"
-          
+
           # Add to PATH for current step and future steps
           $env:PATH = "$wixPath;$env:PATH"
           Add-Content -Path $env:GITHUB_PATH -Value $wixPath
-          
+
           # Verify executables
           if (Test-Path "$wixPath\candle.exe") {
             Write-Host "✓ candle.exe found"
@@ -95,7 +95,7 @@ jobs:
             Write-Error "candle.exe not found at $wixPath"
             exit 1
           }
-          
+
           if (Test-Path "$wixPath\light.exe") {
             Write-Host "✓ light.exe found"
           } else {
@@ -108,66 +108,34 @@ jobs:
           exit 1
         }
       shell: pwsh
-      
+
     - name: Restore NuGet packages
       run: nuget restore MakeMeAdmin.sln
-      
-    # - name: Verify WiX Installation
-    #   run: |
-    #     Write-Host "Checking WiX installation..."
-    #     Write-Host "PATH: $env:PATH"
-    #     Write-Host ""
-        
-    #     $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
-    #     if (Test-Path $wixPath) {
-    #       Write-Host "✓ WiX directory exists: $wixPath"
-    #       Get-ChildItem $wixPath
-    #     } else {
-    #       Write-Error "WiX directory not found at $wixPath"
-    #       exit 1
-    #     }
-        
-    #     Write-Host ""
-    #     Write-Host "Searching for candle.exe..."
-    #     $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
-    #     if ($candle) {
-    #       Write-Host "✓ Found: $($candle.Source)"
-    #     } else {
-    #       Write-Error "candle.exe not found in PATH"
-    #       exit 1
-    #     }
-        
-    #     Write-Host ""
-    #     Write-Host "Searching for light.exe..."
-    #     $light = Get-Command light.exe -ErrorAction SilentlyContinue
-    #     if ($light) {
-    #       Write-Host "✓ Found: $($light.Source)"
-    #     } else {
-    #       Write-Error "light.exe not found in PATH"
-    #       exit 1
-    #     }
-    #   shell: pwsh
-      
-    - name: Build Solution (ARM64)
-      run: msbuild MakeMeAdmin.sln /p:Configuration=Release /p:Platform=ARM64 /m /v:minimal
-      
+
+    - name: Build Solution (x64)
+      run: msbuild MakeMeAdmin.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
+
     - name: List MSI output
       run: |
         Write-Host "Setup output:"
-        Get-ChildItem Setup\bin\Release* -ErrorAction SilentlyContinue
+        Get-ChildItem "Setup\bin\Release x64" -ErrorAction SilentlyContinue
         Write-Host ""
         Write-Host "Installers folder:"
         if (Test-Path Installers\) {
-          Get-ChildItem Installers\
+          Get-ChildItem Installers\ -Recurse
         } else {
           Write-Host "Installers folder not found"
         }
       shell: pwsh
       continue-on-error: true
-      
-    - name: Upload ARM64 MSI Installer
+
+    - name: Upload AMD64 MSI Installer
       uses: actions/upload-artifact@v4
       with:
-        name: MakeMeAdmin-ARM64-Installer
-        path: Installers/*/*.msi
+        name: MakeMeAdmin-AMD64-Installer
+        # The Setup post-build event copies the .msi into Installers\; both globs
+        # are listed so the upload works whether or not it lands in a subfolder.
+        path: |
+          Installers/*.msi
+          Installers/**/*.msi
         if-no-files-found: error
